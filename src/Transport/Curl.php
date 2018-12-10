@@ -26,13 +26,15 @@ class Curl
     {
         $response = curl_exec($this->ch);
         $error = curl_error($this->ch);
+        $errorCode = curl_errno($this->ch);
 
         if (is_resource($this->ch)) {
             curl_close($this->ch);
         }
 
-        if (curl_errno($this->ch) !== 0 || $response === false) {
-            throw new \RuntimeException($error, curl_errno($this->ch));
+
+        if ($errorCode !== 0 || $response === false) {
+            throw new \RuntimeException($error, $errorCode);
         }
 
         return $response;
