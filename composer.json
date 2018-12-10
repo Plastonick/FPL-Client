@@ -1,7 +1,12 @@
 {
+  "name": "plastonick/fpl-api",
+  "description": "A PHP OOP wrapper for FPL API",
   "autoload": {
     "psr-4": {
       "FPL\\": "src/"
+    },
+    "require": {
+      "php": ">=7.2.0"
     }
   }
 }
