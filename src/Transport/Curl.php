@@ -7,9 +7,6 @@ class Curl
     /** @var resource cURL handle */
     private $ch;
 
-    /** @var mixed The response */
-    private $response = false;
-
     /**
      * @param string $url
      * @param array $options
@@ -26,16 +23,11 @@ class Curl
     }
 
     /**
-     * Get the response
      * @return string
      * @throws \RuntimeException On cURL error
      */
-    public function getResponse()
+    public function getResponse(): string
     {
-        if ($this->response) {
-            return $this->response;
-        }
-
         $response = curl_exec($this->ch);
         $error = curl_error($this->ch);
         $errno = curl_errno($this->ch);
@@ -44,19 +36,10 @@ class Curl
             curl_close($this->ch);
         }
 
-        if (0 !== $errno) {
+        if ($errno !== 0 || $response === false) {
             throw new \RuntimeException($error, $errno);
         }
 
-        return $this->response = $response;
-    }
-
-    /**
-     * Let echo out the response
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getResponse();
+        return $response;
     }
 }
