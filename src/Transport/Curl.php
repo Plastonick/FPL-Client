@@ -7,11 +7,7 @@ class Curl
     /** @var resource cURL handle */
     private $ch;
 
-    /**
-     * @param string $url
-     * @param array $options
-     */
-    public function __construct($url, array $options = [])
+    public function __construct(string $url, array $options = [])
     {
         $this->ch = curl_init($url);
 
@@ -30,14 +26,13 @@ class Curl
     {
         $response = curl_exec($this->ch);
         $error = curl_error($this->ch);
-        $errno = curl_errno($this->ch);
 
         if (is_resource($this->ch)) {
             curl_close($this->ch);
         }
 
-        if ($errno !== 0 || $response === false) {
-            throw new \RuntimeException($error, $errno);
+        if (curl_errno($this->ch) !== 0 || $response === false) {
+            throw new \RuntimeException($error, curl_errno($this->ch));
         }
 
         return $response;
