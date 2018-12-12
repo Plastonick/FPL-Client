@@ -16,6 +16,8 @@ class Player
 
     private $teamId;
 
+    private $fixtures;
+
     public function __construct(array $bootstrap)
     {
         $this->setId($bootstrap['id'])
@@ -37,7 +39,7 @@ class Player
 
     public function hydrate(array $data)
     {
-
+        $this->hydrateFixtures($data['fixtures']);
     }
 
     public function setId(int $id): Player
@@ -73,5 +75,15 @@ class Player
         $this->teamId = $teamId;
 
         return $this;
+    }
+
+    /**
+     * @param $fixtures
+     */
+    protected function hydrateFixtures($fixtures): void
+    {
+        foreach ($fixtures as $fixture) {
+            $this->fixtures[$fixture['id']] = new Fixture($fixture);
+        }
     }
 }
