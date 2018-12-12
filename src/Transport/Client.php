@@ -47,8 +47,6 @@ class Client
         $static = json_decode($curl->getResponse(), true);
 
         $this->bootstrap = new Bootstrap($static);
-
-        // instantiate players
     }
 
     protected function hydratePlayer(Player $player): void
