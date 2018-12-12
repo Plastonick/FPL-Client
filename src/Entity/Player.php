@@ -2,6 +2,8 @@
 
 namespace FPL\Entity;
 
+use FPL\Transport\Client;
+
 class Player
 {
     private $id;
@@ -26,6 +28,11 @@ class Player
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function getTeam(): ?Team
+    {
+        return Client::get()->getTeamById($this->teamId);
     }
 
     public function hydrate(array $data)
