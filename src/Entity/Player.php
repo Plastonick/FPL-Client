@@ -14,13 +14,23 @@ class Player
 
     private $teamId;
 
-    public function __construct(array $data)
+    public function __construct(array $bootstrap)
     {
-        $this->setId($data['id'])
-            ->setFirstName($data['first_name'])
-            ->setSecondName($data['second_name'])
-            ->setPositionId($data['element_type'])
-            ->setTeamId($data['team']);
+        $this->setId($bootstrap['id'])
+            ->setFirstName($bootstrap['first_name'])
+            ->setSecondName($bootstrap['second_name'])
+            ->setPositionId($bootstrap['element_type'])
+            ->setTeamId($bootstrap['team']);
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function hydrate(array $data)
+    {
+
     }
 
     public function setId(int $id): Player
