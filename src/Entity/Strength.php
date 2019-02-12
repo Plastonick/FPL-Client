@@ -28,4 +28,39 @@ class Strength
         $this->defenceHome = (int) $data['strength_defence_home'];
         $this->defenceAway = (int) $data['strength_defence_away'];
     }
+
+    public function getShort(): int
+    {
+        return $this->short;
+    }
+
+    public function getOverallHome(): int
+    {
+        return $this->overallHome;
+    }
+
+    public function getOverallAway(): int
+    {
+        return $this->overallAway;
+    }
+
+    public function getAttackHome(): int
+    {
+        return $this->attackHome;
+    }
+
+    public function getAttackAway(): int
+    {
+        return $this->attackAway;
+    }
+
+    public function getDefenceHome(): int
+    {
+        return $this->defenceHome;
+    }
+
+    public function getDefenceAway(): int
+    {
+        return $this->defenceAway;
+    }
 }
