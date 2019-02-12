@@ -49,11 +49,10 @@ class Client
         $this->bootstrap = new Bootstrap($static);
     }
 
-    protected function hydratePlayer(Player $player): void
+    private function hydratePlayer(Player $player): void
     {
         $curl = new Curl(self::BASE_URL . "element-summary/{$player->getId()}");
 
         $player->hydrate(json_decode($curl->getResponse(), true));
     }
-
 }
