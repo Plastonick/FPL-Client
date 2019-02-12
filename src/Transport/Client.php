@@ -4,7 +4,6 @@ namespace FPL\Transport;
 
 use FPL\Entity\Player;
 use FPL\Entity\Team;
-use function json_decode;
 
 class Client
 {
@@ -41,10 +40,7 @@ class Client
 
     private function __construct()
     {
-        $curl = new Curl(self::BASE_URL . 'bootstrap-static');
-
-        // TODO locally cache this data
-        $static = json_decode($curl->getResponse(), true);
+        $static = $this->getStatic();
 
         $this->bootstrap = new Bootstrap($static);
     }
@@ -54,5 +50,21 @@ class Client
         $curl = new Curl(self::BASE_URL . "element-summary/{$player->getId()}");
 
         $player->hydrate(json_decode($curl->getResponse(), true));
+    }
+
+    private function getStatic(): array
+    {
+        $bootstrapCacheFile = '/tmp/fpl-api/bootstrapcache';
+
+        if (!file_exists($bootstrapCacheFile)) {
+            $curl = new Curl(self::BASE_URL . 'bootstrap-static');
+
+            mkdir('/tmp/fpl-api');
+            file_put_contents($bootstrapCacheFile, $curl->getResponse());
+        }
+
+        $static = json_decode(file_get_contents($bootstrapCacheFile), true);
+
+        return $static;
     }
 }
