@@ -41,7 +41,6 @@ class Client
     private function __construct()
     {
         $static = $this->getStatic();
-
         $this->bootstrap = new Bootstrap($static);
     }
 
@@ -57,14 +56,19 @@ class Client
         $bootstrapCacheFile = '/tmp/fpl-api/bootstrapcache';
 
         if (!file_exists($bootstrapCacheFile)) {
-            $curl = new Curl(self::BASE_URL . 'bootstrap-static');
-
-            mkdir('/tmp/fpl-api');
-            file_put_contents($bootstrapCacheFile, $curl->getResponse());
+            $this->cacheStatic($bootstrapCacheFile);
         }
 
         $static = json_decode(file_get_contents($bootstrapCacheFile), true);
 
         return $static;
+    }
+
+    private function cacheStatic(string $bootstrapCacheFile): void
+    {
+        $curl = new Curl(self::BASE_URL . 'bootstrap-static');
+
+        mkdir('/tmp/fpl-api');
+        file_put_contents($bootstrapCacheFile, $curl->getResponse());
     }
 }
