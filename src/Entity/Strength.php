@@ -2,7 +2,7 @@
 
 namespace FPL\Entity;
 
-final class Strength
+class Strength
 {
     private $short;
 
