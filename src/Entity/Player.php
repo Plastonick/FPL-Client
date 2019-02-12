@@ -22,11 +22,11 @@ class Player
 
     public function __construct(array $bootstrap)
     {
-        $this->setId($bootstrap['id'])
-            ->setFirstName($bootstrap['first_name'])
-            ->setSecondName($bootstrap['second_name'])
-            ->setPositionId($bootstrap['element_type'])
-            ->setTeamId($bootstrap['team']);
+        $this->id = $bootstrap['id'];
+        $this->firstName = $bootstrap['first_name'];
+        $this->secondName = $bootstrap['second_name'];
+        $this->positionId = $bootstrap['element_type'];
+        $this->teamId = $bootstrap['team'];
     }
 
     public function getId(): int
@@ -41,43 +41,8 @@ class Player
 
     public function hydrate(array $data)
     {
-        $this->fixtures = $this->buildFixtures($data['fixtures']);
-        $this->history = $this->buildFixtures($data['history']);
-    }
-
-    public function setId(int $id): Player
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    public function setFirstName(string $firstName)
-    {
-        $this->firstName = $firstName;
-
-        return $this;
-    }
-
-    public function setSecondName(string $secondName): Player
-    {
-        $this->secondName = $secondName;
-
-        return $this;
-    }
-
-    public function setPositionId(int $positionId): Player
-    {
-        $this->positionId = $positionId;
-
-        return $this;
-    }
-
-    public function setTeamId(int $teamId): Player
-    {
-        $this->teamId = $teamId;
-
-        return $this;
+        $this->fixtures = $this->buildFixtures($data['fixtures'] ?? []);
+        $this->history = $this->buildFixtures($data['history'] ?? []);
     }
 
     protected function buildFixtures(array $gameData): array
