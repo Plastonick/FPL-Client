@@ -18,8 +18,7 @@ class Team
 
     private $unavailable;
 
-    // TODO
-//    private $strength;
+    private $strength;
 
     private $played;
 
@@ -28,14 +27,15 @@ class Team
     public function __construct(array $data)
     {
         $this->id = (int) $data['id'];
-        $this->currentFixture = $data['currentFixture'] ?? null;
-        $this->nextFixture = $data['nextFixture'] ?? null;
+        $this->currentFixture = $data['current_fixture'] ?? null;
+        $this->nextFixture = $data['next_fixture'] ?? null;
         $this->name = $data['name'];
         $this->code = $data['code'];
-        $this->shortName = $data['shortName'];
+        $this->shortName = $data['short_name'];
         $this->unavailable = (bool) ($data['unavailable'] ?? false);
+        $this->strength = new Strength($data);
         $this->played = (bool) ($data['played'] ?? false);
-        $this->teamDivision = $data['teamDivision'] ?? null;
+        $this->teamDivision = $data['team_division'] ?? null;
     }
 
     public function getId(): int
