@@ -9,6 +9,8 @@ class Client
 {
     const BASE_URL = 'https://fantasy.premierleague.com/drf/';
 
+    const BOOTSTRAP_TTL = 3600;
+
     private static $cache;
 
     private $bootstrap;
@@ -53,22 +55,35 @@ class Client
 
     private function getStatic(): array
     {
-        $bootstrapCacheFile = '/tmp/fpl-api/bootstrapcache';
+        $bootstrapCachePath = '/tmp/fpl-api/bootstrapcache';
 
-        if (!file_exists($bootstrapCacheFile)) {
-            $this->cacheStatic($bootstrapCacheFile);
+        if (!$this->cacheIsValid($bootstrapCachePath)) {
+            $this->cacheStatic($bootstrapCachePath);
         }
 
-        $static = json_decode(file_get_contents($bootstrapCacheFile), true);
+        $static = json_decode(file_get_contents($bootstrapCachePath), true);
 
         return $static;
     }
 
-    private function cacheStatic(string $bootstrapCacheFile): void
+    private function cacheStatic(string $bootstrapCachePath): void
     {
         $curl = new Curl(self::BASE_URL . 'bootstrap-static');
 
-        mkdir('/tmp/fpl-api');
-        file_put_contents($bootstrapCacheFile, $curl->getResponse());
+        $cacheDir = preg_replace('/[^\/]+$/', '', $bootstrapCachePath);
+        if (!file_exists($cacheDir)) {
+            mkdir($cacheDir, 0777, true);
+        }
+
+        file_put_contents($bootstrapCachePath, $curl->getResponse());
+    }
+
+    private function cacheIsValid(string $bootstrapCacheFile): bool
+    {
+        if (!file_exists($bootstrapCacheFile)) {
+            return false;
+        }
+
+        return time() - filemtime($bootstrapCacheFile) < self::BOOTSTRAP_TTL;
     }
 }
