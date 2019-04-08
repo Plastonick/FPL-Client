@@ -2,25 +2,23 @@
 
 namespace FPL\Transport;
 
+use FPL\Exception\TransportException;
+
 class Curl
 {
     /** @var resource cURL handle */
     private $ch;
 
-    public function __construct(string $url, array $options = [])
+    public function __construct(string $url)
     {
         $this->ch = curl_init($url);
-
-        foreach ($options as $key => $val) {
-            curl_setopt($this->ch, $key, $val);
-        }
 
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
     }
 
     /**
      * @return string
-     * @throws \RuntimeException On cURL error
+     * @throws TransportException on curl error
      */
     public function getResponse(): string
     {
@@ -33,8 +31,8 @@ class Curl
         }
 
 
-        if ($errorCode !== 0 || $response === false) {
-            throw new \RuntimeException($error, $errorCode);
+        if ($errorCode !== 0 || !is_string($response)) {
+            throw new TransportException($error, $errorCode);
         }
 
         return $response;
