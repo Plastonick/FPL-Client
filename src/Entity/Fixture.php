@@ -2,6 +2,9 @@
 
 namespace FPL\Entity;
 
+use DateTime;
+use Exception;
+
 class Fixture
 {
     private $id;
@@ -16,22 +19,27 @@ class Fixture
 
     private $finished;
 
+    /**
+     * @param array $data
+     *
+     * @throws Exception
+     */
     public function __construct(array $data)
     {
         $this->id = $data['id'];
-        $this->kickoff = new \DateTime($data['kickoff_time']);
+        $this->kickoff = new DateTime($data['kickoff_time']);
         $this->gameWeekId = $data['event'] ?? null;
         $this->homeTeamId = $data['team_h'] ?? null;
         $this->awayTeamId = $data['team_a'] ?? null;
         $this->finished = $data['finished'] ?? false;
     }
 
-    public function getId():int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getKickoff(): \DateTime
+    public function getKickoff(): DateTime
     {
         return $this->kickoff;
     }
