@@ -19,6 +19,8 @@ class Fixture
 
     private $finished;
 
+    private $performance;
+
     /**
      * @param array $data
      *
@@ -31,7 +33,11 @@ class Fixture
         $this->gameWeekId = $data['event'] ?? null;
         $this->homeTeamId = $data['team_h'] ?? null;
         $this->awayTeamId = $data['team_a'] ?? null;
-        $this->finished = $data['finished'] ?? false;
+        $this->finished = $data['finished'] ?? true;
+
+        if ($this->isFinished()) {
+            $this->performance = new Performance($data);
+        }
     }
 
     public function getId(): int
