@@ -30,7 +30,6 @@ class Curl
             curl_close($this->ch);
         }
 
-
         if ($errorCode !== 0 || !is_string($response)) {
             throw new TransportException($error, $errorCode);
         }
