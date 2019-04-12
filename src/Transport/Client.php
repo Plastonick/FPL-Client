@@ -4,6 +4,7 @@ namespace FPL\Transport;
 
 use FPL\Entity\Player;
 use FPL\Entity\Team;
+use FPL\Exception\TransportException as TransportException;
 
 class Client
 {
@@ -17,7 +18,7 @@ class Client
 
     /**
      * @return Client
-     * @throws \FPL\Exception\TransportException
+     * @throws TransportException
      */
     public static function get()
     {
@@ -30,7 +31,7 @@ class Client
 
     /**
      * @return array
-     * @throws \FPL\Exception\TransportException
+     * @throws TransportException
      */
     public function getAllPlayers(): array
     {
@@ -52,7 +53,7 @@ class Client
      * @param int $id
      *
      * @return Player|null
-     * @throws \FPL\Exception\TransportException
+     * @throws TransportException
      */
     public function getPlayerById(int $id): ?Player
     {
@@ -71,7 +72,7 @@ class Client
     }
 
     /**
-     * @throws \FPL\Exception\TransportException
+     * @throws TransportException
      */
     private function __construct()
     {
@@ -82,7 +83,7 @@ class Client
     /**
      * @param Player $player
      *
-     * @throws \FPL\Exception\TransportException
+     * @throws TransportException
      */
     private function hydratePlayer(Player $player): void
     {
@@ -93,7 +94,7 @@ class Client
 
     /**
      * @return array
-     * @throws \FPL\Exception\TransportException
+     * @throws TransportException
      */
     private function getStatic(): array
     {
@@ -111,7 +112,7 @@ class Client
     /**
      * @param string $bootstrapCachePath
      *
-     * @throws \FPL\Exception\TransportException
+     * @throws TransportException
      */
     private function cacheStatic(string $bootstrapCachePath): void
     {
