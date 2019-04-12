@@ -6,7 +6,7 @@ use Exception;
 use FPL\Entity\Player;
 use FPL\Entity\Team;
 use FPL\Exception\TransportException as TransportException;
-use FPL\Transport\Hydration\PlayerHydrator;
+use FPL\Hydration\PlayerHydrator;
 
 class Client
 {

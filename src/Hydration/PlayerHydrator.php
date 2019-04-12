@@ -1,6 +1,6 @@
 <?php
 
-namespace FPL\Transport\Hydration;
+namespace FPL\Hydration;
 
 use Exception;
 use FPL\Entity\Fixture;
