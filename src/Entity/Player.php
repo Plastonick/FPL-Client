@@ -5,17 +5,11 @@ namespace FPL\Entity;
 class Player
 {
     private $id;
-
     private $firstName;
-
     private $secondName;
-
     private $positionId;
-
     private $teamId;
-
     private $fixtures;
-
     private $history;
 
     public function __construct(array $bootstrap)
@@ -35,6 +29,31 @@ class Player
     public function getTeamId(): int
     {
         return $this->teamId;
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function getSecondName(): string
+    {
+        return $this->secondName;
+    }
+
+    public function getPositionId(): int
+    {
+        return $this->positionId;
+    }
+
+    public function getFixtures(): ?array
+    {
+        return $this->fixtures;
+    }
+
+    public function getHistory(): ?array
+    {
+        return $this->history;
     }
 
     public function setFixtures(array $fixtures): void
