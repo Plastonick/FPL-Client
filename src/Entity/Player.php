@@ -2,6 +2,8 @@
 
 namespace FPL\Entity;
 
+use Exception;
+use FPL\Exception\TransportException;
 use FPL\Transport\Client;
 
 class Player
@@ -34,23 +36,61 @@ class Player
         return $this->id;
     }
 
+    /**
+     * @return Team|null
+     * @throws TransportException
+     */
     public function getTeam(): ?Team
     {
         return Client::get()->getTeamById($this->teamId);
     }
 
-    public function hydrate(array $data)
+    public function getTeamId(): int
     {
-        $this->fixtures = $this->buildFixtures($data['fixtures'] ?? []);
-        $this->history = $this->buildFixtures($data['history'] ?? []);
+        return $this->teamId;
     }
 
+    /**
+     * @param array $data
+     *
+     * @throws Exception
+     */
+    public function hydrate(array $data): void
+    {
+        $this->fixtures = $this->buildFixtures($data['fixtures'] ?? []);
+        $this->history = $this->buildMatches($data['history'] ?? []);
+    }
+
+    /**
+     * @param array $gameData
+     *
+     * @return array
+     * @throws Exception
+     */
     protected function buildFixtures(array $gameData): array
     {
         $fixtures = [];
 
         foreach ($gameData as $gameDatum) {
             $fixtures[$gameDatum['id']] = new Fixture($gameDatum);
+        }
+
+        return $fixtures;
+    }
+
+    /**
+     * @param array $gameData
+     *
+     * @return array
+     * @throws Exception
+     */
+    protected function buildMatches(array $gameData): array
+    {
+        $fixtures = [];
+
+        foreach ($gameData as $gameDatum) {
+            $gameDatum['self_team_id'] = $this->getTeamId();
+            $fixtures[$gameDatum['id']] = new Match($gameDatum);
         }
 
         return $fixtures;

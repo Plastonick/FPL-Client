@@ -4,6 +4,7 @@ namespace FPL\Transport;
 
 use FPL\Entity\Player;
 use FPL\Entity\Team;
+use FPL\Exception\TransportException as TransportException;
 
 class Client
 {
@@ -15,6 +16,10 @@ class Client
 
     private $bootstrap;
 
+    /**
+     * @return Client
+     * @throws TransportException
+     */
     public static function get()
     {
         if (!isset(self::$cache)) {
@@ -24,6 +29,32 @@ class Client
         return self::$cache;
     }
 
+    /**
+     * @return array
+     * @throws TransportException
+     */
+    public function getAllPlayers(): array
+    {
+        $players = $this->bootstrap->getPlayers();
+
+        foreach ($players as $player) {
+            $this->hydratePlayer($player);
+        }
+
+        return $players;
+    }
+
+    public function getAllTeams(): array
+    {
+        return $this->bootstrap->getTeams();
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return Player|null
+     * @throws TransportException
+     */
     public function getPlayerById(int $id): ?Player
     {
         $player = $this->bootstrap->getPlayerById($id);
@@ -40,12 +71,20 @@ class Client
         return $this->bootstrap->getTeamById($id);
     }
 
+    /**
+     * @throws TransportException
+     */
     private function __construct()
     {
         $static = $this->getStatic();
         $this->bootstrap = new Bootstrap($static);
     }
 
+    /**
+     * @param Player $player
+     *
+     * @throws TransportException
+     */
     private function hydratePlayer(Player $player): void
     {
         $curl = new Curl(self::BASE_URL . "element-summary/{$player->getId()}");
@@ -53,6 +92,10 @@ class Client
         $player->hydrate(json_decode($curl->getResponse(), true));
     }
 
+    /**
+     * @return array
+     * @throws TransportException
+     */
     private function getStatic(): array
     {
         $bootstrapCachePath = '/tmp/fpl-api/bootstrapcache';
@@ -66,6 +109,11 @@ class Client
         return $static;
     }
 
+    /**
+     * @param string $bootstrapCachePath
+     *
+     * @throws TransportException
+     */
     private function cacheStatic(string $bootstrapCachePath): void
     {
         $curl = new Curl(self::BASE_URL . 'bootstrap-static');

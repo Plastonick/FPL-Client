@@ -16,6 +16,22 @@ class Bootstrap
         $this->hydrateTeams($static['teams']);
     }
 
+    /**
+     * @return Player[]
+     */
+    public function getPlayers(): array
+    {
+        return $this->players;
+    }
+
+    /**
+     * @return Team[]
+     */
+    public function getTeams(): array
+    {
+        return $this->teams;
+    }
+
     public function getPlayerById(int $id): ?Player
     {
         return $this->players[$id];
