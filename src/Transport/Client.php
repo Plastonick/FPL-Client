@@ -2,9 +2,11 @@
 
 namespace FPL\Transport;
 
+use Exception;
 use FPL\Entity\Player;
 use FPL\Entity\Team;
 use FPL\Exception\TransportException as TransportException;
+use FPL\Hydration\PlayerHydrator;
 
 class Client
 {
@@ -84,12 +86,16 @@ class Client
      * @param Player $player
      *
      * @throws TransportException
+     * @throws Exception
      */
     private function hydratePlayer(Player $player): void
     {
         $curl = new Curl(self::BASE_URL . "element-summary/{$player->getId()}");
+        $data = json_decode($curl->getResponse(), true);
 
-        $player->hydrate(json_decode($curl->getResponse(), true));
+        $hydrator = new PlayerHydrator($player);
+        $hydrator->hydrateMatches($data['history']);
+        $hydrator->hydrateFixtures($data['fixtures']);
     }
 
     /**
