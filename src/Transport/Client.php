@@ -5,9 +5,11 @@ namespace FPL\Transport;
 use Exception;
 use FPL\Entity\Player;
 use FPL\Entity\Team;
+use FPL\Exception\AuthenticationException;
 use FPL\Exception\TransportException;
 use FPL\Hydration\PlayerHydrator;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Cookie\CookieJar;
 use Psr\Http\Message\ResponseInterface;
 
 class Client
@@ -19,6 +21,8 @@ class Client
     private $client;
 
     private $bootstrap;
+
+    private $isAuthenticated = false;
 
     /**
      * @throws TransportException
@@ -74,6 +78,48 @@ class Client
     public function getTeamById(int $id): ?Team
     {
         return $this->bootstrap->getTeamById($id);
+    }
+
+    /**
+     * @param string $username
+     * @param string $password
+     *
+     * @throws TransportException
+     * @throws AuthenticationException
+     */
+    public function authenticate(string $username, string $password)
+    {
+        $cookieJar = new CookieJar();
+        $loginClient = new GuzzleClient([
+            'headers' => ['User-Agent' => 'plastonick-fpl-client'],
+            'base_uri' => 'https://users.premierleague.com/',
+            'cookies' => $cookieJar,
+        ]);
+
+        $payload = [
+            'password' => $password,
+            'login' => $username,
+            'redirect_uri' => 'https://fantasy.premierleague.com/a/login',
+            'app' => 'plfpl-web',
+        ];
+
+        try {
+            $loginClient->post('/accounts/login/', ['form_params' => $payload]);
+        } catch (Exception $e) {
+            throw new TransportException('Failed to authenticate', $e);
+        }
+
+        $message = $cookieJar->getCookieByName('messages')->getValue();
+        if (strpos($message, "Successfully signed in as {$username}") === false) {
+            throw new AuthenticationException('Failed to authenticate');
+        }
+
+        $this->client = new GuzzleClient([
+            'headers' => ['User-Agent' => 'plastonick-fpl-client'],
+            'base_uri' => self::BASE_URI,
+            'cookies' => $cookieJar
+        ]);
+        $this->isAuthenticated = true;
     }
 
     /**
@@ -145,10 +191,6 @@ class Client
      */
     private function validateResponse(ResponseInterface $response): void
     {
-        if ($response->getStatusCode() !== 200) {
-            throw new TransportException('Failed to receive a successful response from Fantasy API');
-        }
-
         $stream = $response->getBody();
         if ($stream->getContents() === '') {
             throw new TransportException('Received an empty response from Fantasy API');
