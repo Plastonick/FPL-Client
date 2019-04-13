@@ -2,6 +2,6 @@
 
 namespace FPL\Exception;
 
-class TransportException extends \Exception
+class TransportException extends FplException
 {
 }
