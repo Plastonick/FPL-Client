@@ -9,6 +9,7 @@ class Player
     private $secondName;
     private $positionId;
     private $teamId;
+    private $team;
     private $fixtures;
     private $performances;
 
@@ -29,6 +30,11 @@ class Player
     public function getTeamId(): int
     {
         return $this->teamId;
+    }
+
+    public function getTeam(): Team
+    {
+        return $this->team;
     }
 
     public function getFirstName(): string
@@ -70,5 +76,10 @@ class Player
     public function setPerformances(array $performances): void
     {
         $this->performances = $performances;
+    }
+
+    public function setTeam(Team $team): void
+    {
+        $this->team = $team;
     }
 }
