@@ -23,7 +23,9 @@ class Fixture
     private $finishedProvisional;
     private $eventId;
     private $awayTeam;
+    private $awayTeamId;
     private $homeTeam;
+    private $homeTeamId;
 
     /**
      * @param array $data
@@ -46,11 +48,9 @@ class Fixture
         $this->provisionalStartTime = $data['provisional_start_time'];
         $this->finishedProvisional = $data['finished_provisional'];
         $this->eventId = $data['event'];
-
-        // TODO
-        $this->stats = $data['stats'];
-        $this->awayTeam = $data['team_a'];
-        $this->homeTeam = $data['team_h'];
+        $this->stats = new Stats($data['stats']);
+        $this->awayTeamId = $data['team_a'];
+        $this->homeTeamId = $data['team_h'];
     }
 
     public function getId(): int
@@ -113,11 +113,7 @@ class Fixture
         return $this->deadlineTime;
     }
 
-    // TODO
-    /**
-     * @return mixed
-     */
-    public function getStats()
+    public function getStats(): Stats
     {
         return $this->stats;
     }
@@ -137,13 +133,28 @@ class Fixture
         return $this->finished;
     }
 
+    public function setAwayTeam(Team $awayTeam): void
+    {
+        $this->awayTeam = $awayTeam;
+    }
+
+    public function setHomeTeam(Team $homeTeam): void
+    {
+        $this->homeTeam = $homeTeam;
+    }
+
     public function getAwayTeam(): Team
     {
         return $this->awayTeam;
     }
 
-    public function getHomeTeam(): Team
+    public function getAwayTeamId(): int
     {
-        return $this->homeTeam;
+        return $this->awayTeamId;
+    }
+
+    public function getHomeTeamId(): int
+    {
+        return $this->homeTeamId;
     }
 }
