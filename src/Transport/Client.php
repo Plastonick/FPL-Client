@@ -1,14 +1,14 @@
 <?php
 
-namespace FPL\Transport;
+namespace Plastonick\FPLClient\Transport;
 
 use Exception;
-use FPL\Entity\Fixture;
-use FPL\Entity\Player;
-use FPL\Entity\Team;
-use FPL\Exception\AuthenticationException;
-use FPL\Exception\TransportException;
-use FPL\Hydration\PlayerHydrator;
+use Plastonick\FPLClient\Entity\Fixture;
+use Plastonick\FPLClient\Entity\Player;
+use Plastonick\FPLClient\Entity\Team;
+use Plastonick\FPLClient\Exception\AuthenticationException;
+use Plastonick\FPLClient\Exception\TransportException;
+use Plastonick\FPLClient\Hydration\PlayerHydrator;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Cookie\CookieJar;
 use Psr\Http\Message\ResponseInterface;

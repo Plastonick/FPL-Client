@@ -1,6 +1,6 @@
 <?php
 
-namespace FPL\Entity;
+namespace Plastonick\FPLClient\Entity;
 
 class Strength
 {

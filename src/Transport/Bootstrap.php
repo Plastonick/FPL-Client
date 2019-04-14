@@ -1,10 +1,10 @@
 <?php
 
-namespace FPL\Transport;
+namespace Plastonick\FPLClient\Transport;
 
-use FPL\Entity\Fixture;
-use FPL\Entity\Player;
-use FPL\Entity\Team;
+use Plastonick\FPLClient\Entity\Fixture;
+use Plastonick\FPLClient\Entity\Player;
+use Plastonick\FPLClient\Entity\Team;
 
 class Bootstrap
 {

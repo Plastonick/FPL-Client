@@ -1,9 +1,9 @@
 {
-  "name": "plastonick/fpl-api",
-  "description": "A PHP OOP wrapper for FPL API",
+  "name": "plastonick/fpl-client",
+  "description": "A PHP OOP client for FPL API",
   "autoload": {
     "psr-4": {
-      "FPL\\": "src/"
+      "Plastonick\\FPLClient\\": "src/"
     }
   },
   "require": {

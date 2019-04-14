@@ -1,6 +1,6 @@
 <?php
 
-namespace FPL\Exception;
+namespace Plastonick\FPLClient\Exception;
 
 use Exception;
 
