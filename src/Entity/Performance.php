@@ -50,6 +50,7 @@ class Performance
     private $fouls;
     private $dribbles;
     private $element;
+    private $fixture;
 
     public function __construct(array $data)
     {
@@ -329,5 +330,15 @@ class Performance
     public function getElement(): int
     {
         return $this->element;
+    }
+
+    public function getFixture(): Fixture
+    {
+        return $this->fixture;
+    }
+
+    public function setFixture(Fixture $fixture): void
+    {
+        $this->fixture = $fixture;
     }
 }
