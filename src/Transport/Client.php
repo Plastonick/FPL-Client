@@ -5,30 +5,37 @@ namespace FPL\Transport;
 use Exception;
 use FPL\Entity\Player;
 use FPL\Entity\Team;
-use FPL\Exception\TransportException as TransportException;
+use FPL\Exception\AuthenticationException;
+use FPL\Exception\TransportException;
 use FPL\Hydration\PlayerHydrator;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Cookie\CookieJar;
+use Psr\Http\Message\ResponseInterface;
 
 class Client
 {
-    const BASE_URL = 'https://fantasy.premierleague.com/drf/';
+    const BASE_URI = 'https://fantasy.premierleague.com/drf/';
 
     const BOOTSTRAP_TTL = 3600;
 
-    private static $cache;
+    private $client;
 
     private $bootstrap;
 
+    private $isAuthenticated = false;
+
     /**
-     * @return Client
      * @throws TransportException
      */
-    public static function get()
+    public function __construct()
     {
-        if (!isset(self::$cache)) {
-            self::$cache = new self();
-        }
+        $this->client = new GuzzleClient([
+            'headers' => ['User-Agent' => 'plastonick-fpl-client'],
+            'base_uri' => self::BASE_URI,
+        ]);
 
-        return self::$cache;
+        $static = $this->getStatic();
+        $this->bootstrap = new Bootstrap($static);
     }
 
     /**
@@ -74,12 +81,45 @@ class Client
     }
 
     /**
+     * @param string $username
+     * @param string $password
+     *
      * @throws TransportException
+     * @throws AuthenticationException
      */
-    private function __construct()
+    public function authenticate(string $username, string $password)
     {
-        $static = $this->getStatic();
-        $this->bootstrap = new Bootstrap($static);
+        $cookieJar = new CookieJar();
+        $loginClient = new GuzzleClient([
+            'headers' => ['User-Agent' => 'plastonick-fpl-client'],
+            'base_uri' => 'https://users.premierleague.com/',
+            'cookies' => $cookieJar,
+        ]);
+
+        $payload = [
+            'password' => $password,
+            'login' => $username,
+            'redirect_uri' => 'https://fantasy.premierleague.com/a/login',
+            'app' => 'plfpl-web',
+        ];
+
+        try {
+            $loginClient->post('/accounts/login/', ['form_params' => $payload]);
+        } catch (Exception $e) {
+            throw new TransportException('Failed to authenticate', $e);
+        }
+
+        $message = $cookieJar->getCookieByName('messages')->getValue();
+        if (strpos($message, "Successfully signed in as {$username}") === false) {
+            throw new AuthenticationException('Failed to authenticate');
+        }
+
+        $this->client = new GuzzleClient([
+            'headers' => ['User-Agent' => 'plastonick-fpl-client'],
+            'base_uri' => self::BASE_URI,
+            'cookies' => $cookieJar
+        ]);
+        $this->isAuthenticated = true;
     }
 
     /**
@@ -90,8 +130,10 @@ class Client
      */
     private function hydratePlayer(Player $player): void
     {
-        $curl = new Curl(self::BASE_URL . "element-summary/{$player->getId()}");
-        $data = json_decode($curl->getResponse(), true);
+        $response = $this->client->get("element-summary/{$player->getId()}");
+        $this->validateResponse($response);
+
+        $data = json_decode($response->getBody()->getContents(), true);
 
         $hydrator = new PlayerHydrator($player);
         $hydrator->hydrateMatches($data['history']);
@@ -122,14 +164,15 @@ class Client
      */
     private function cacheStatic(string $bootstrapCachePath): void
     {
-        $curl = new Curl(self::BASE_URL . 'bootstrap-static');
-
         $cacheDir = preg_replace('/[^\/]+$/', '', $bootstrapCachePath);
         if (!file_exists($cacheDir)) {
             mkdir($cacheDir, 0777, true);
         }
 
-        file_put_contents($bootstrapCachePath, $curl->getResponse());
+        $response = $this->client->get('bootstrap-static');
+        $this->validateResponse($response);
+
+        file_put_contents($bootstrapCachePath, $response->getBody()->getContents());
     }
 
     private function cacheIsValid(string $bootstrapCacheFile): bool
@@ -139,5 +182,20 @@ class Client
         }
 
         return time() - filemtime($bootstrapCacheFile) < self::BOOTSTRAP_TTL;
+    }
+
+    /**
+     * @param ResponseInterface $response
+     *
+     * @throws TransportException
+     */
+    private function validateResponse(ResponseInterface $response): void
+    {
+        $stream = $response->getBody();
+        if ($stream->getContents() === '') {
+            throw new TransportException('Received an empty response from Fantasy API');
+        }
+
+        $stream->rewind();
     }
 }
