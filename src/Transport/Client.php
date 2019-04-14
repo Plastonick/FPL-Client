@@ -3,6 +3,7 @@
 namespace FPL\Transport;
 
 use Exception;
+use FPL\Entity\Fixture;
 use FPL\Entity\Player;
 use FPL\Entity\Team;
 use FPL\Exception\AuthenticationException;
@@ -34,8 +35,10 @@ class Client
             'base_uri' => self::BASE_URI,
         ]);
 
-        $static = $this->getStatic();
-        $this->bootstrap = new Bootstrap($static);
+        $this->bootstrap = new Bootstrap(
+            $this->getStatic(),
+            $this->fetchFixtures()
+        );
     }
 
     /**
@@ -136,7 +139,7 @@ class Client
         $data = json_decode($response->getBody()->getContents(), true);
 
         $hydrator = new PlayerHydrator($player);
-        $hydrator->hydrateMatches($data['history']);
+        $hydrator->hydrateHistory($data['history']);
         $hydrator->hydrateFixtures($data['fixtures']);
     }
 
@@ -197,5 +200,26 @@ class Client
         }
 
         $stream->rewind();
+    }
+
+    /**
+     * @return Fixture[]
+     * @throws TransportException
+     * @throws Exception
+     */
+    private function fetchFixtures(): array
+    {
+        $response = $this->client->get('fixtures');
+
+        $this->validateResponse($response);
+
+        $fixtureData = json_decode($response->getBody()->getContents(), true);
+
+        $fixtures = [];
+        foreach ($fixtureData as $fixtureDatum) {
+            $fixtures[] = new Fixture($fixtureDatum);
+        }
+
+        return $fixtures;
     }
 }
