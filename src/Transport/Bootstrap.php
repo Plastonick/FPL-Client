@@ -14,8 +14,10 @@ class Bootstrap
 
     public function __construct(array $static, array $fixtures)
     {
-        $this->hydratePlayers($static['elements']);
-        $this->hydrateTeams($static['teams']);
+        $this->players = $this->buildPlayers($static['elements']);
+        $this->teams = $this->buildTeams($static['teams']);
+
+        $this->hydrateTeams($fixtures);
         $this->fixtures = $fixtures;
     }
 
@@ -58,17 +60,42 @@ class Bootstrap
         return $this->fixtures[$id];
     }
 
-    private function hydratePlayers(array $elements): void
+    private function buildPlayers(array $elements): array
     {
+        $players = [];
+
         foreach ($elements as $element) {
-            $this->players[$element['id']] = new Player($element);
+            $players[$element['id']] = new Player($element);
         }
+
+        return $players;
     }
 
-    private function hydrateTeams(array $teams): void
+    private function buildTeams(array $teamsData): array
     {
-        foreach ($teams as $team) {
-            $this->teams[$team['id']] = new Team($team);
+        $teams = [];
+
+        foreach ($teamsData as $teamData) {
+            $teams[$teamData['id']] = new Team($teamData);
         }
+
+        return $teams;
+    }
+
+    /**
+     * @param array $fixtures
+     */
+    private function hydrateTeams(array $fixtures): void
+    {
+        array_walk(
+            $fixtures,
+            function (Fixture $fixture) {
+                $awayTeam = $this->getTeamById($fixture->getAwayTeamId());
+                $homeTeam = $this->getTeamById($fixture->getHomeTeamId());
+
+                $fixture->setAwayTeam($awayTeam);
+                $fixture->setHomeTeam($homeTeam);
+            }
+        );
     }
 }
