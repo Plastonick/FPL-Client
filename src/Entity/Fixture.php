@@ -5,22 +5,26 @@ namespace FPL\Entity;
 use DateTime;
 use Exception;
 
-class Fixture implements Game
+class Fixture
 {
     private $id;
-    private $kickoffTime;
-    private $eventName;
-    private $isHome;
-    private $difficulty;
+    private $started;
+    private $deadlineTime;
+    private $stats;
+    private $awayTeamDifficulty;
+    private $homeTeamDifficulty;
     private $code;
-    private $homeTeamScore;
+    private $kickoffTime;
     private $awayTeamScore;
+    private $homeTeamScore;
     private $finished;
     private $minutes;
     private $provisionalStartTime;
     private $finishedProvisional;
     private $eventId;
+    private $awayTeam;
     private $awayTeamId;
+    private $homeTeam;
     private $homeTeamId;
 
     /**
@@ -31,18 +35,20 @@ class Fixture implements Game
     public function __construct(array $data)
     {
         $this->id = $data['id'];
-        $this->eventName = $data['event_name'];
-        $this->isHome = $data['is_home'];
-        $this->difficulty = $data['difficulty'];
+        $this->started = $data['started'];
+        $this->deadlineTime = new DateTime($data['deadline_time']);
+        $this->awayTeamDifficulty = $data['team_a_difficulty'];
+        $this->homeTeamDifficulty = $data['team_h_difficulty'];
         $this->code = $data['code'];
         $this->kickoffTime = new DateTime($data['kickoff_time']);
-        $this->homeTeamScore = $data['team_h_score'];
         $this->awayTeamScore = $data['team_a_score'];
+        $this->homeTeamScore = $data['team_h_score'];
         $this->finished = $data['finished'];
         $this->minutes = $data['minutes'];
         $this->provisionalStartTime = $data['provisional_start_time'];
         $this->finishedProvisional = $data['finished_provisional'];
         $this->eventId = $data['event'];
+        $this->stats = new Stats($data['stats']);
         $this->awayTeamId = $data['team_a'];
         $this->homeTeamId = $data['team_h'];
     }
@@ -57,34 +63,9 @@ class Fixture implements Game
         return $this->kickoffTime;
     }
 
-    public function getHomeTeamId(): int
-    {
-        return $this->homeTeamId;
-    }
-
-    public function getAwayTeamId(): int
-    {
-        return $this->awayTeamId;
-    }
-
     public function isFinished(): bool
     {
         return $this->finished;
-    }
-
-    public function getEventName(): string
-    {
-        return $this->eventName;
-    }
-
-    public function isHome(): bool
-    {
-        return $this->isHome;
-    }
-
-    public function getDifficulty(): int
-    {
-        return $this->difficulty;
     }
 
     public function getCode(): int
@@ -122,21 +103,58 @@ class Fixture implements Game
         return $this->eventId;
     }
 
-    public function getOpponentTeamId(): int
+    public function hasStarted(): bool
     {
-        if ($this->isHome()) {
-            return $this->awayTeamId;
-        }
-
-        return $this->homeTeamId;
+        return $this->started;
     }
 
-    public function getSelfTeamId(): int
+    public function getDeadlineTime(): DateTime
     {
-        if ($this->isHome()) {
-            return $this->homeTeamId;
-        }
+        return $this->deadlineTime;
+    }
 
+    public function getStats(): Stats
+    {
+        return $this->stats;
+    }
+
+    public function getAwayTeamDifficulty(): int
+    {
+        return $this->awayTeamDifficulty;
+    }
+
+    public function getHomeTeamDifficulty(): int
+    {
+        return $this->homeTeamDifficulty;
+    }
+
+    public function hasFinished(): bool
+    {
+        return $this->finished;
+    }
+
+    public function setAwayTeam(Team $awayTeam): void
+    {
+        $this->awayTeam = $awayTeam;
+    }
+
+    public function setHomeTeam(Team $homeTeam): void
+    {
+        $this->homeTeam = $homeTeam;
+    }
+
+    public function getAwayTeam(): Team
+    {
+        return $this->awayTeam;
+    }
+
+    public function getAwayTeamId(): int
+    {
         return $this->awayTeamId;
+    }
+
+    public function getHomeTeamId(): int
+    {
+        return $this->homeTeamId;
     }
 }

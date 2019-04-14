@@ -3,17 +3,23 @@
 namespace FPL\Hydration;
 
 use Exception;
-use FPL\Entity\Fixture;
-use FPL\Entity\Match;
+use FPL\Entity\Performance;
 use FPL\Entity\Player;
+use FPL\Exception\NonExistentRecordException;
+use FPL\Transport\Bootstrap;
 
 class PlayerHydrator
 {
     private $player;
 
-    public function __construct(Player $player)
+    private $bootstrap;
+
+    public function __construct(Player $player, Bootstrap $bootstrap)
     {
+        $this->hydrateTeam($player, $bootstrap);
+
         $this->player = $player;
+        $this->bootstrap = $bootstrap;
     }
 
     /**
@@ -21,16 +27,24 @@ class PlayerHydrator
      *
      * @throws Exception
      */
-    public function hydrateMatches(array $historyData): void
+    public function hydrateHistory(array $historyData): void
     {
-        $history = [];
+        $performances = [];
 
-        foreach ($historyData as $matchDatum) {
-            $matchDatum['self_team_id'] = $this->player->getTeamId();
-            $history[$matchDatum['id']] = new Match($matchDatum);
+        foreach ($historyData as $performanceData) {
+            $fixture = $this->bootstrap->getFixtureById($performanceData['fixture']);
+
+            if ($fixture === null) {
+                throw new NonExistentRecordException('Failed to retrieve valid Fixture');
+            }
+
+            $performance = new Performance($performanceData);
+            $performance->setFixture($fixture);
+
+            $performances[] = $performance;
         }
 
-        $this->player->setHistory($history);
+        $this->player->setPerformances($performances);
     }
 
     /**
@@ -43,9 +57,14 @@ class PlayerHydrator
         $fixtures = [];
 
         foreach ($fixtureData as $fixtureDatum) {
-            $fixtures[$fixtureDatum['id']] = new Fixture($fixtureDatum);
+            $fixtures[] = $this->bootstrap->getFixtureById($fixtureDatum['id']);
         }
 
         $this->player->setFixtures($fixtures);
+    }
+
+    private function hydrateTeam(Player $player, Bootstrap $bootstrap): void
+    {
+        $player->setTeam($bootstrap->getTeamById($player->getTeamId()));
     }
 }

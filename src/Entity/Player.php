@@ -9,8 +9,9 @@ class Player
     private $secondName;
     private $positionId;
     private $teamId;
+    private $team;
     private $fixtures;
-    private $history;
+    private $performances;
 
     public function __construct(array $bootstrap)
     {
@@ -31,6 +32,11 @@ class Player
         return $this->teamId;
     }
 
+    public function getTeam(): Team
+    {
+        return $this->team;
+    }
+
     public function getFirstName(): string
     {
         return $this->firstName;
@@ -46,14 +52,20 @@ class Player
         return $this->positionId;
     }
 
+    /**
+     * @return Fixture[]|null
+     */
     public function getFixtures(): ?array
     {
         return $this->fixtures;
     }
 
-    public function getHistory(): ?array
+    /**
+     * @return Performance[]|null
+     */
+    public function getPerformances(): ?array
     {
-        return $this->history;
+        return $this->performances;
     }
 
     public function setFixtures(array $fixtures): void
@@ -61,8 +73,13 @@ class Player
         $this->fixtures = $fixtures;
     }
 
-    public function setHistory(array $history): void
+    public function setPerformances(array $performances): void
     {
-        $this->history = $history;
+        $this->performances = $performances;
+    }
+
+    public function setTeam(Team $team): void
+    {
+        $this->team = $team;
     }
 }
