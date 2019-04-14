@@ -138,7 +138,7 @@ class Client
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $hydrator = new PlayerHydrator($player);
+        $hydrator = new PlayerHydrator($player, $this->bootstrap);
         $hydrator->hydrateHistory($data['history']);
         $hydrator->hydrateFixtures($data['fixtures']);
     }
