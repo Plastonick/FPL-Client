@@ -3,7 +3,6 @@
 namespace FPL\Hydration;
 
 use Exception;
-use FPL\Entity\Fixture;
 use FPL\Entity\Performance;
 use FPL\Entity\Player;
 use FPL\Exception\NonExistentRecordException;
@@ -17,6 +16,8 @@ class PlayerHydrator
 
     public function __construct(Player $player, Bootstrap $bootstrap)
     {
+        $this->hydrateTeam($player, $bootstrap);
+
         $this->player = $player;
         $this->bootstrap = $bootstrap;
     }
@@ -30,15 +31,17 @@ class PlayerHydrator
     {
         $performances = [];
 
-        foreach ($historyData as $fixtureDatum) {
-            $fixture = $this->bootstrap->getFixtureById($fixtureDatum['id']);
+        foreach ($historyData as $performanceData) {
+            $fixture = $this->bootstrap->getFixtureById($performanceData['fixture']);
 
             if ($fixture === null) {
                 throw new NonExistentRecordException('Failed to retrieve valid Fixture');
             }
 
-            $performance = new Performance($fixtureDatum);
+            $performance = new Performance($performanceData);
             $performance->setFixture($fixture);
+
+            $performances[] = $performance;
         }
 
         $this->player->setPerformances($performances);
@@ -54,9 +57,14 @@ class PlayerHydrator
         $fixtures = [];
 
         foreach ($fixtureData as $fixtureDatum) {
-            $fixtures[$fixtureDatum['id']] = new Fixture($fixtureDatum);
+            $fixtures[] = $this->bootstrap->getFixtureById($fixtureDatum['id']);
         }
 
         $this->player->setFixtures($fixtures);
+    }
+
+    private function hydrateTeam(Player $player, Bootstrap $bootstrap): void
+    {
+        $player->setTeam($bootstrap->getTeamById($player->getTeamId()));
     }
 }
