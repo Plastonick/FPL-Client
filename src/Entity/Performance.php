@@ -101,7 +101,7 @@ class Performance
         $this->element = (int) $data['element'];
     }
 
-    public function isWasHome(): bool
+    public function wasHome(): bool
     {
         return $this->wasHome;
     }
