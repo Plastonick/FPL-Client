@@ -47,17 +47,38 @@ class Bootstrap
 
     public function getPlayerById(int $id): ?Player
     {
-        return $this->players[$id];
+        $players = array_filter(
+            $this->players,
+            function (Player $player) use ($id) {
+                return $player->getId() === $id;
+            }
+        );
+
+        return array_shift($players);
     }
 
     public function getTeamById(int $id): ?Team
     {
-        return $this->teams[$id];
+        $teams = array_filter(
+            $this->teams,
+            function (Team $team) use ($id) {
+                return $team->getId() === $id;
+            }
+        );
+
+        return array_shift($teams);
     }
 
     public function getFixtureById(int $id): ?Fixture
     {
-        return $this->fixtures[$id];
+        $fixtures = array_filter(
+            $this->fixtures,
+            function (Fixture $fixture) use ($id) {
+                return $fixture->getId() === $id;
+            }
+        );
+
+        return array_shift($fixtures);
     }
 
     private function buildPlayers(array $elements): array
@@ -65,7 +86,7 @@ class Bootstrap
         $players = [];
 
         foreach ($elements as $element) {
-            $players[$element['id']] = new Player($element);
+            $players[] = new Player($element);
         }
 
         return $players;
@@ -76,7 +97,7 @@ class Bootstrap
         $teams = [];
 
         foreach ($teamsData as $teamData) {
-            $teams[$teamData['id']] = new Team($teamData);
+            $teams[] = new Team($teamData);
         }
 
         return $teams;
