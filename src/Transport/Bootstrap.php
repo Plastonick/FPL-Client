@@ -2,18 +2,21 @@
 
 namespace FPL\Transport;
 
+use FPL\Entity\Fixture;
 use FPL\Entity\Player;
 use FPL\Entity\Team;
 
 class Bootstrap
 {
-    private $players = [];
-    private $teams = [];
+    private $players;
+    private $teams;
+    private $fixtures;
 
-    public function __construct(array $static)
+    public function __construct(array $static, array $fixtures)
     {
         $this->hydratePlayers($static['elements']);
         $this->hydrateTeams($static['teams']);
+        $this->fixtures = $fixtures;
     }
 
     /**
@@ -32,6 +35,14 @@ class Bootstrap
         return $this->teams;
     }
 
+    /**
+     * @return Fixture[]
+     */
+    public function getFixtures(): array
+    {
+        return $this->fixtures;
+    }
+
     public function getPlayerById(int $id): ?Player
     {
         return $this->players[$id];
@@ -40,6 +51,11 @@ class Bootstrap
     public function getTeamById(int $id): ?Team
     {
         return $this->teams[$id];
+    }
+
+    public function getFixtureById(int $id): ?Fixture
+    {
+        return $this->fixtures[$id];
     }
 
     private function hydratePlayers(array $elements): void
