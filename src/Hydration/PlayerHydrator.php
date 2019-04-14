@@ -1,12 +1,12 @@
 <?php
 
-namespace FPL\Hydration;
+namespace Plastonick\FPLClient\Hydration;
 
 use Exception;
-use FPL\Entity\Performance;
-use FPL\Entity\Player;
-use FPL\Exception\NonExistentRecordException;
-use FPL\Transport\Bootstrap;
+use Plastonick\FPLClient\Entity\Performance;
+use Plastonick\FPLClient\Entity\Player;
+use Plastonick\FPLClient\Exception\NonExistentRecordException;
+use Plastonick\FPLClient\Transport\Bootstrap;
 
 class PlayerHydrator
 {
