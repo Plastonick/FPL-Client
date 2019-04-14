@@ -4,16 +4,21 @@ namespace FPL\Hydration;
 
 use Exception;
 use FPL\Entity\Fixture;
-use FPL\Entity\Match;
+use FPL\Entity\Performance;
 use FPL\Entity\Player;
+use FPL\Exception\NonExistentRecordException;
+use FPL\Transport\Bootstrap;
 
 class PlayerHydrator
 {
     private $player;
 
-    public function __construct(Player $player)
+    private $bootstrap;
+
+    public function __construct(Player $player, Bootstrap $bootstrap)
     {
         $this->player = $player;
+        $this->bootstrap = $bootstrap;
     }
 
     /**
@@ -21,16 +26,22 @@ class PlayerHydrator
      *
      * @throws Exception
      */
-    public function hydrateMatches(array $historyData): void
+    public function hydrateHistory(array $historyData): void
     {
-        $history = [];
+        $performances = [];
 
-        foreach ($historyData as $matchDatum) {
-            $matchDatum['self_team_id'] = $this->player->getTeamId();
-            $history[$matchDatum['id']] = new Match($matchDatum);
+        foreach ($historyData as $fixtureDatum) {
+            $fixture = $this->bootstrap->getFixtureById($fixtureDatum['id']);
+
+            if ($fixture === null) {
+                throw new NonExistentRecordException('Failed to retrieve valid Fixture');
+            }
+
+            $performance = new Performance($fixtureDatum);
+            $performance->setFixture($fixture);
         }
 
-        $this->player->setHistory($history);
+        $this->player->setPerformances($performances);
     }
 
     /**
