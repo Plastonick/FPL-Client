@@ -138,6 +138,11 @@ class Fixture
         $this->awayTeam = $awayTeam;
     }
 
+    public function getHomeTeam(): Team
+    {
+        return $this->homeTeam;
+    }
+
     public function setHomeTeam(Team $homeTeam): void
     {
         $this->homeTeam = $homeTeam;

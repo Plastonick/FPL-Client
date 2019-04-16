@@ -61,6 +61,11 @@ class Client
         return $this->bootstrap->getTeams();
     }
 
+    public function getAllFixtures(): array
+    {
+        return $this->bootstrap->getFixtures();
+    }
+
     /**
      * @param int $id
      *

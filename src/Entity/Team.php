@@ -43,6 +43,11 @@ class Team
         return $this->id;
     }
 
+    public function getStrength(): Strength
+    {
+        return $this->strength;
+    }
+
     public function getCurrentFixture(): ?int
     {
         return $this->currentFixture;
