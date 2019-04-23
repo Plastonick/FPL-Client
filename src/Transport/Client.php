@@ -45,6 +45,14 @@ class Client
     }
 
     /**
+     * @throws PhpfastcacheSimpleCacheException
+     */
+    public function clearCache()
+    {
+        $this->cache->clear();
+    }
+
+    /**
      * @return array
      * @throws PhpfastcacheDriverCheckException
      * @throws PhpfastcacheLogicException
