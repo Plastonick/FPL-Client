@@ -3,10 +3,7 @@
 namespace Plastonick\FPLClient\Transport;
 
 use Exception;
-use Phpfastcache\Exceptions\PhpfastcacheDriverCheckException;
-use Phpfastcache\Exceptions\PhpfastcacheLogicException;
-use Phpfastcache\Exceptions\PhpfastcacheSimpleCacheException;
-use Phpfastcache\Helper\Psr16Adapter;
+use Kodus\Cache\FileCache;
 use Plastonick\FPLClient\Entity\Fixture;
 use Plastonick\FPLClient\Entity\Player;
 use Plastonick\FPLClient\Entity\Team;
@@ -16,6 +13,8 @@ use Plastonick\FPLClient\Hydration\PlayerHydrator;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Cookie\CookieJar;
 use Psr\Http\Message\ResponseInterface;
+use Psr\SimpleCache\CacheInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class Client
 {
@@ -25,28 +24,24 @@ class Client
 
     private $client;
 
+    /** @var CacheInterface */
     private $cache;
 
     private $isAuthenticated = false;
 
     /**
-     * @throws PhpfastcacheDriverCheckException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheSimpleCacheException
+     * @param CacheInterface $cache
      */
-    public function __construct()
+    public function __construct(CacheInterface $cache = null)
     {
         $this->client = new GuzzleClient([
             'headers' => ['User-Agent' => 'plastonick-fpl-client'],
             'base_uri' => self::BASE_URI,
         ]);
 
-        $this->cache = new Psr16Adapter('Files');
+        $this->cache = $cache ?? $this->buildDefaultCache();
     }
 
-    /**
-     * @throws PhpfastcacheSimpleCacheException
-     */
     public function clearCache()
     {
         $this->cache->clear();
@@ -54,10 +49,8 @@ class Client
 
     /**
      * @return array
-     * @throws PhpfastcacheDriverCheckException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheSimpleCacheException
      * @throws TransportException
+     * @throws InvalidArgumentException
      */
     public function getAllPlayers(): array
     {
@@ -72,10 +65,8 @@ class Client
 
     /**
      * @return Team[]
-     * @throws PhpfastcacheDriverCheckException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheSimpleCacheException
      * @throws TransportException
+     * @throws InvalidArgumentException
      */
     public function getAllTeams(): array
     {
@@ -84,10 +75,8 @@ class Client
 
     /**
      * @return Fixture[]
-     * @throws PhpfastcacheDriverCheckException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheSimpleCacheException
      * @throws TransportException
+     * @throws InvalidArgumentException
      */
     public function getAllFixtures(): array
     {
@@ -98,10 +87,8 @@ class Client
      * @param int $id
      *
      * @return Player|null
-     * @throws PhpfastcacheDriverCheckException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheSimpleCacheException
      * @throws TransportException
+     * @throws InvalidArgumentException
      */
     public function getPlayerById(int $id): ?Player
     {
@@ -118,14 +105,29 @@ class Client
      * @param int $id
      *
      * @return Team|null
-     * @throws PhpfastcacheDriverCheckException
-     * @throws PhpfastcacheLogicException
-     * @throws PhpfastcacheSimpleCacheException
      * @throws TransportException
+     * @throws InvalidArgumentException
      */
     public function getTeamById(int $id): ?Team
     {
         return $this->getBootstrap()->getTeamById($id);
+    }
+
+    /**
+     * @return Fixture[]
+     * @throws TransportException
+     * @throws InvalidArgumentException
+     */
+    public function getFixtures(): array
+    {
+        $key = 'fixtures';
+
+        if (!$this->cache->has($key)) {
+            $fixtures = $this->fetchFixtures();
+            $this->cache->set($key, $fixtures, 3600);
+        }
+
+        return $this->cache->get($key);
     }
 
     /**
@@ -172,22 +174,20 @@ class Client
 
     /**
      * @return Bootstrap
-     * @throws PhpfastcacheSimpleCacheException
      * @throws TransportException
-     * @throws PhpfastcacheDriverCheckException
-     * @throws PhpfastcacheLogicException
+     * @throws InvalidArgumentException
      */
     private function getBootstrap()
     {
         $key = 'bootstrap';
 
-        if ($this->cache->get($key) === null) {
+        if (!$this->cache->has($key)) {
             $bootstrap = new Bootstrap(
                 $this->getStatic(),
-                $this->fetchFixtures()
+                $this->getFixtures()
             );
 
-            $this->cache->set($key, $bootstrap, 3600);
+            $this->cache->set($key, $bootstrap);
         }
 
         return $this->cache->get($key);
@@ -198,6 +198,7 @@ class Client
      *
      * @throws TransportException
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     private function hydratePlayer(Player $player): void
     {
@@ -256,5 +257,13 @@ class Client
         }
 
         return $fixtures;
+    }
+
+    /**
+     * @return FileCache
+     */
+    private function buildDefaultCache(): FileCache
+    {
+        return new FileCache('/tmp', 3600);
     }
 }
