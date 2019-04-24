@@ -3,6 +3,7 @@
 namespace Plastonick\FPLClient\Transport;
 
 use Exception;
+use Kodus\Cache\FileCache;
 use Plastonick\FPLClient\Entity\Fixture;
 use Plastonick\FPLClient\Entity\Player;
 use Plastonick\FPLClient\Entity\Team;
@@ -12,6 +13,8 @@ use Plastonick\FPLClient\Hydration\PlayerHydrator;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Cookie\CookieJar;
 use Psr\Http\Message\ResponseInterface;
+use Psr\SimpleCache\CacheInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class Client
 {
@@ -21,33 +24,37 @@ class Client
 
     private $client;
 
-    private $bootstrap;
+    /** @var CacheInterface */
+    private $cache;
 
     private $isAuthenticated = false;
 
     /**
-     * @throws TransportException
+     * @param CacheInterface $cache
      */
-    public function __construct()
+    public function __construct(CacheInterface $cache = null)
     {
         $this->client = new GuzzleClient([
             'headers' => ['User-Agent' => 'plastonick-fpl-client'],
             'base_uri' => self::BASE_URI,
         ]);
 
-        $this->bootstrap = new Bootstrap(
-            $this->getStatic(),
-            $this->fetchFixtures()
-        );
+        $this->cache = $cache ?? $this->buildDefaultCache();
+    }
+
+    public function clearCache()
+    {
+        $this->cache->clear();
     }
 
     /**
      * @return array
      * @throws TransportException
+     * @throws InvalidArgumentException
      */
     public function getAllPlayers(): array
     {
-        $players = $this->bootstrap->getPlayers();
+        $players = $this->getBootstrap()->getPlayers();
 
         foreach ($players as $player) {
             $this->hydratePlayer($player);
@@ -56,14 +63,24 @@ class Client
         return $players;
     }
 
+    /**
+     * @return Team[]
+     * @throws TransportException
+     * @throws InvalidArgumentException
+     */
     public function getAllTeams(): array
     {
-        return $this->bootstrap->getTeams();
+        return $this->getBootstrap()->getTeams();
     }
 
+    /**
+     * @return Fixture[]
+     * @throws TransportException
+     * @throws InvalidArgumentException
+     */
     public function getAllFixtures(): array
     {
-        return $this->bootstrap->getFixtures();
+        return $this->getBootstrap()->getFixtures();
     }
 
     /**
@@ -71,10 +88,11 @@ class Client
      *
      * @return Player|null
      * @throws TransportException
+     * @throws InvalidArgumentException
      */
     public function getPlayerById(int $id): ?Player
     {
-        $player = $this->bootstrap->getPlayerById($id);
+        $player = $this->getBootstrap()->getPlayerById($id);
 
         if ($player !== null) {
             $this->hydratePlayer($player);
@@ -83,9 +101,33 @@ class Client
         return $player;
     }
 
+    /**
+     * @param int $id
+     *
+     * @return Team|null
+     * @throws TransportException
+     * @throws InvalidArgumentException
+     */
     public function getTeamById(int $id): ?Team
     {
-        return $this->bootstrap->getTeamById($id);
+        return $this->getBootstrap()->getTeamById($id);
+    }
+
+    /**
+     * @return Fixture[]
+     * @throws TransportException
+     * @throws InvalidArgumentException
+     */
+    public function getFixtures(): array
+    {
+        $key = 'fixtures';
+
+        if (!$this->cache->has($key)) {
+            $fixtures = $this->fetchFixtures();
+            $this->cache->set($key, $fixtures, 3600);
+        }
+
+        return $this->cache->get($key);
     }
 
     /**
@@ -131,10 +173,32 @@ class Client
     }
 
     /**
+     * @return Bootstrap
+     * @throws TransportException
+     * @throws InvalidArgumentException
+     */
+    private function getBootstrap()
+    {
+        $key = 'bootstrap';
+
+        if (!$this->cache->has($key)) {
+            $bootstrap = new Bootstrap(
+                $this->getStatic(),
+                $this->getFixtures()
+            );
+
+            $this->cache->set($key, $bootstrap);
+        }
+
+        return $this->cache->get($key);
+    }
+
+    /**
      * @param Player $player
      *
      * @throws TransportException
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     private function hydratePlayer(Player $player): void
     {
@@ -143,7 +207,7 @@ class Client
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $hydrator = new PlayerHydrator($player, $this->bootstrap);
+        $hydrator = new PlayerHydrator($player, $this->getBootstrap());
         $hydrator->hydrateHistory($data['history']);
         $hydrator->hydrateFixtures($data['fixtures']);
     }
@@ -154,42 +218,10 @@ class Client
      */
     private function getStatic(): array
     {
-        $bootstrapCachePath = '/tmp/fpl-api/bootstrapcache';
-
-        if (!$this->cacheIsValid($bootstrapCachePath)) {
-            $this->cacheStatic($bootstrapCachePath);
-        }
-
-        $static = json_decode(file_get_contents($bootstrapCachePath), true);
-
-        return $static;
-    }
-
-    /**
-     * @param string $bootstrapCachePath
-     *
-     * @throws TransportException
-     */
-    private function cacheStatic(string $bootstrapCachePath): void
-    {
-        $cacheDir = preg_replace('/[^\/]+$/', '', $bootstrapCachePath);
-        if (!file_exists($cacheDir)) {
-            mkdir($cacheDir, 0777, true);
-        }
-
         $response = $this->client->get('bootstrap-static');
         $this->validateResponse($response);
 
-        file_put_contents($bootstrapCachePath, $response->getBody()->getContents());
-    }
-
-    private function cacheIsValid(string $bootstrapCacheFile): bool
-    {
-        if (!file_exists($bootstrapCacheFile)) {
-            return false;
-        }
-
-        return time() - filemtime($bootstrapCacheFile) < self::BOOTSTRAP_TTL;
+        return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -215,7 +247,6 @@ class Client
     private function fetchFixtures(): array
     {
         $response = $this->client->get('fixtures');
-
         $this->validateResponse($response);
 
         $fixtureData = json_decode($response->getBody()->getContents(), true);
@@ -226,5 +257,13 @@ class Client
         }
 
         return $fixtures;
+    }
+
+    /**
+     * @return FileCache
+     */
+    private function buildDefaultCache(): FileCache
+    {
+        return new FileCache('/tmp/fpl-client-cache', 3600);
     }
 }
