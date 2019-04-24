@@ -264,6 +264,6 @@ class Client
      */
     private function buildDefaultCache(): FileCache
     {
-        return new FileCache('/tmp', 3600);
+        return new FileCache('/tmp/fpl-client-cache', 3600);
     }
 }
