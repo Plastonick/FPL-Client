@@ -54,7 +54,7 @@ class RequestCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function getMultiple($keys, $default = null)
+    public function getMultiple($keys, $default = null): array
     {
         $output = [];
         foreach ($keys as $key) {
@@ -79,11 +79,13 @@ class RequestCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function deleteMultiple($keys)
+    public function deleteMultiple($keys): bool
     {
         foreach ($keys as $key) {
             $this->delete($key);
         }
+
+        return true;
     }
 
     /**
