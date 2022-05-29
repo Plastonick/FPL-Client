@@ -3,7 +3,7 @@
 namespace Plastonick\FPLClient\Transport;
 
 use Exception;
-use Kodus\Cache\FileCache;
+use Plastonick\FPLClient\RequestCache;
 use Plastonick\FPLClient\Entity\Fixture;
 use Plastonick\FPLClient\Entity\Player;
 use Plastonick\FPLClient\Entity\Team;
@@ -20,16 +20,11 @@ class Client
 {
     const BASE_URI = 'https://fantasy.premierleague.com/api/';
 
-    const BOOTSTRAP_TTL = 3600;
-
     private $client;
 
     /** @var CacheInterface */
     private $cache;
 
-    /**
-     * @param CacheInterface $cache
-     */
     public function __construct(CacheInterface $cache = null)
     {
         $this->client = new GuzzleClient([
@@ -122,7 +117,7 @@ class Client
 
         if (!$this->cache->has($key)) {
             $fixtures = $this->fetchFixtures();
-            $this->cache->set($key, $fixtures, 3600);
+            $this->cache->set($key, $fixtures);
         }
 
         return $this->cache->get($key);
@@ -259,10 +254,10 @@ class Client
     }
 
     /**
-     * @return FileCache
+     * @return CacheInterface
      */
-    private function buildDefaultCache(): FileCache
+    private function buildDefaultCache(): CacheInterface
     {
-        return new FileCache('/tmp/fpl-client-cache', self::BOOTSTRAP_TTL);
+        return new RequestCache();
     }
 }
