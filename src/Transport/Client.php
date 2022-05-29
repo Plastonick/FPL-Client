@@ -18,7 +18,7 @@ use Psr\SimpleCache\InvalidArgumentException;
 
 class Client
 {
-    const BASE_URI = 'https://fantasy.premierleague.com/drf/';
+    const BASE_URI = 'https://fantasy.premierleague.com/api/';
 
     const BOOTSTRAP_TTL = 3600;
 
@@ -26,8 +26,6 @@ class Client
 
     /** @var CacheInterface */
     private $cache;
-
-    private $isAuthenticated = false;
 
     /**
      * @param CacheInterface $cache
@@ -169,7 +167,6 @@ class Client
             'base_uri' => self::BASE_URI,
             'cookies' => $cookieJar
         ]);
-        $this->isAuthenticated = true;
     }
 
     /**
@@ -202,7 +199,8 @@ class Client
      */
     private function hydratePlayer(Player $player): void
     {
-        $response = $this->client->get("element-summary/{$player->getId()}");
+        $response = $this->client->get("element-summary/{$player->getId()}/");
+
         $this->validateResponse($response);
 
         $data = json_decode($response->getBody()->getContents(), true);
@@ -218,7 +216,7 @@ class Client
      */
     private function getStatic(): array
     {
-        $response = $this->client->get('bootstrap-static');
+        $response = $this->client->get('bootstrap-static/');
         $this->validateResponse($response);
 
         return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
@@ -247,6 +245,7 @@ class Client
     private function fetchFixtures(): array
     {
         $response = $this->client->get('fixtures');
+
         $this->validateResponse($response);
 
         $fixtureData = json_decode($response->getBody()->getContents(), true);
@@ -264,6 +263,6 @@ class Client
      */
     private function buildDefaultCache(): FileCache
     {
-        return new FileCache('/tmp/fpl-client-cache', 3600);
+        return new FileCache('/tmp/fpl-client-cache', self::BOOTSTRAP_TTL);
     }
 }
