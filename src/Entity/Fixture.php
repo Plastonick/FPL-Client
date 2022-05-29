@@ -3,134 +3,99 @@
 namespace Plastonick\FPLClient\Entity;
 
 use DateTime;
-use Exception;
 
 class Fixture
 {
-    private $id;
-    private $started;
-    private $deadlineTime;
-    private $stats;
-    private $awayTeamDifficulty;
-    private $homeTeamDifficulty;
-    private $code;
-    private $kickoffTime;
-    private $awayTeamScore;
-    private $homeTeamScore;
-    private $finished;
-    private $minutes;
-    private $provisionalStartTime;
-    private $finishedProvisional;
-    private $eventId;
     private $awayTeam;
-    private $awayTeamId;
     private $homeTeam;
-    private $homeTeamId;
-
     /**
-     * @param array $data
-     *
-     * @throws Exception
+     * @var array
      */
+    private $data;
+
     public function __construct(array $data)
     {
-        $this->id = $data['id'];
-        $this->started = $data['started'];
-        $this->deadlineTime = new DateTime($data['deadline_time']);
-        $this->awayTeamDifficulty = $data['team_a_difficulty'];
-        $this->homeTeamDifficulty = $data['team_h_difficulty'];
-        $this->code = $data['code'];
-        $this->kickoffTime = new DateTime($data['kickoff_time']);
-        $this->awayTeamScore = $data['team_a_score'];
-        $this->homeTeamScore = $data['team_h_score'];
-        $this->finished = $data['finished'];
-        $this->minutes = $data['minutes'];
-        $this->provisionalStartTime = $data['provisional_start_time'];
-        $this->finishedProvisional = $data['finished_provisional'];
-        $this->eventId = $data['event'];
-        $this->stats = new Stats($data['stats']);
-        $this->awayTeamId = $data['team_a'];
-        $this->homeTeamId = $data['team_h'];
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getKickoffTime(): DateTime
-    {
-        return $this->kickoffTime;
-    }
-
-    public function isFinished(): bool
-    {
-        return $this->finished;
+        $this->data = $data;
     }
 
     public function getCode(): int
     {
-        return $this->code;
+        return $this->data['code'];
     }
 
-    public function getHomeTeamScore(): ?int
+    public function getEvent(): int
     {
-        return $this->homeTeamScore;
+        return $this->data['event'];
     }
 
-    public function getAwayTeamScore(): ?int
+    public function getFinished(): int
     {
-        return $this->awayTeamScore;
+        return $this->data['finished'];
+    }
+
+    public function getFinishedProvisional(): int
+    {
+        return $this->data['finished_provisional'];
+    }
+
+    public function getId(): int
+    {
+        return $this->data['id'];
+    }
+
+    public function getKickoffTime(): int
+    {
+        return DateTime::createFromFormat('Y-m-d\TH:i:se', $this->data['kickoff_time']);
     }
 
     public function getMinutes(): int
     {
-        return $this->minutes;
+        return $this->data['minutes'];
     }
 
-    public function hasProvisionalStartTime(): bool
+    public function getProvisionalStartTime(): int
     {
-        return $this->provisionalStartTime;
-    }
-
-    public function didFinishProvisional(): bool
-    {
-        return $this->finishedProvisional;
-    }
-
-    public function getEventId(): int
-    {
-        return $this->eventId;
+        return $this->data['provisional_start_time'];
     }
 
     public function hasStarted(): bool
     {
-        return $this->started;
+        return $this->data['started'];
     }
 
-    public function getDeadlineTime(): DateTime
+    public function getAwayTeamScore(): int
     {
-        return $this->deadlineTime;
+        return $this->data['team_a_score'];
     }
 
-    public function getStats(): Stats
+    public function getHomeTeamScore(): int
     {
-        return $this->stats;
+        return $this->data['team_h_score'];
     }
 
-    public function getAwayTeamDifficulty(): int
+    public function getTeamHDifficulty(): int
     {
-        return $this->awayTeamDifficulty;
+        return $this->data['team_h_difficulty'];
     }
 
-    public function getHomeTeamDifficulty(): int
+    public function getTeamADifficulty(): int
     {
-        return $this->homeTeamDifficulty;
+        return $this->data['team_a_difficulty'];
     }
 
-    public function hasFinished(): bool
+    public function getPulseId(): int
     {
-        return $this->finished;
+        return $this->data['pulse_id'];
+    }
+
+    public function getAwayTeamId(): int
+    {
+        return $this->data['team_a'];
+    }
+
+    public function getHomeTeamId(): int
+    {
+        return $this->data['team_h'];
     }
 
     public function setAwayTeam(Team $awayTeam): void
@@ -151,15 +116,5 @@ class Fixture
     public function getAwayTeam(): Team
     {
         return $this->awayTeam;
-    }
-
-    public function getAwayTeamId(): int
-    {
-        return $this->awayTeamId;
-    }
-
-    public function getHomeTeamId(): int
-    {
-        return $this->homeTeamId;
     }
 }
