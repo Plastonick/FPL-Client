@@ -4,87 +4,60 @@ namespace Plastonick\FPLClient\Entity;
 
 class Team
 {
-    private $id;
-
-    private $currentFixture;
-
-    private $nextFixture;
-
-    private $name;
-
-    private $code;
-
-    private $shortName;
-
-    private $unavailable;
-
-    private $strength;
-
-    private $played;
-
-    private $teamDivision;
+    private $data;
 
     public function __construct(array $data)
     {
-        $this->id = (int) $data['id'];
-        $this->currentFixture = $data['current_fixture'] ?? null;
-        $this->nextFixture = $data['next_fixture'] ?? null;
-        $this->name = $data['name'];
-        $this->code = $data['code'];
-        $this->shortName = $data['short_name'];
-        $this->unavailable = (bool) ($data['unavailable'] ?? false);
-        $this->strength = new Strength($data);
-        $this->played = (bool) ($data['played'] ?? false);
-        $this->teamDivision = $data['team_division'] ?? null;
+        $this->data = $data;
     }
 
     public function getId(): int
     {
-        return $this->id;
+        return (int) $this->data['id'];
     }
 
     public function getStrength(): Strength
     {
-        return $this->strength;
+        return new Strength($this->data);
     }
 
     public function getCurrentFixture(): ?int
     {
-        return $this->currentFixture;
+        return $this->data['current_fixture'] ?? null;
     }
 
     public function getNextFixture(): ?int
     {
-        return $this->nextFixture;
+        return $this->data['next_fixture'] ?? null;
     }
 
     public function getName(): string
     {
-        return $this->name;
+        return $this->data['name'];
     }
 
     public function getCode(): string
     {
-        return $this->code;
+        return $this->data['code'];
     }
 
     public function getShortName(): string
     {
-        return $this->shortName;
+        return $this->data['short_name'];
     }
 
     public function getUnavailable(): bool
     {
-        return $this->unavailable;
+        return (bool) ($this->data['unavailable'] ?? false);
     }
 
     public function isPlayed(): bool
     {
-        return $this->played;
+        return (bool) ($this->data['played'] ?? false);
     }
 
     public function getTeamDivision(): ?int
     {
-        return $this->teamDivision;
+        return $this->data['team_division'] ?? null;
     }
 }

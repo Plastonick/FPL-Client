@@ -8,6 +8,7 @@ class Fixture
 {
     private $awayTeam;
     private $homeTeam;
+
     /**
      * @var array
      */

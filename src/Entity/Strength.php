@@ -4,63 +4,45 @@ namespace Plastonick\FPLClient\Entity;
 
 class Strength
 {
-    private $short;
-
-    private $overallHome;
-
-    private $overallAway;
-
-    private $attackHome;
-
-    private $attackAway;
-
-    private $defenceHome;
-
-    private $defenceAway;
+    private $data;
 
     public function __construct(array $data)
     {
-        $this->short = (int) $data['strength'];
-        $this->overallHome = (int) $data['strength_overall_home'];
-        $this->overallAway = (int) $data['strength_overall_away'];
-        $this->attackHome = (int) $data['strength_attack_home'];
-        $this->attackAway = (int) $data['strength_attack_away'];
-        $this->defenceHome = (int) $data['strength_defence_home'];
-        $this->defenceAway = (int) $data['strength_defence_away'];
+        $this->data = $data;
     }
 
-    public function getShort(): int
+    public function getStrength(): int
     {
-        return $this->short;
+        return $this->data['strength'];
     }
 
     public function getOverallHome(): int
     {
-        return $this->overallHome;
+        return $this->data['strength_overall_home'];
     }
 
     public function getOverallAway(): int
     {
-        return $this->overallAway;
+        return $this->data['strength_overall_away'];
     }
 
     public function getAttackHome(): int
     {
-        return $this->attackHome;
+        return $this->data['strength_attack_home'];
     }
 
     public function getAttackAway(): int
     {
-        return $this->attackAway;
+        return $this->data['strength_attack_away'];
     }
 
     public function getDefenceHome(): int
     {
-        return $this->defenceHome;
+        return $this->data['strength_defence_home'];
     }
 
     public function getDefenceAway(): int
     {
-        return $this->defenceAway;
+        return $this->data['strength_defence_away'];
     }
 }
