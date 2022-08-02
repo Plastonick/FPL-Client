@@ -7,13 +7,10 @@ use DateTimeInterface;
 
 class Player
 {
-    /**
-     * @var array
-     */
-    private $data;
-    private $fixtures;
-    private $performances;
-    private $team;
+    private array $data;
+    private ?array $fixtures;
+    private ?array $performances;
+    private Team $team;
 
     public function __construct(array $data)
     {

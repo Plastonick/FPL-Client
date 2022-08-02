@@ -7,7 +7,7 @@ use function array_key_exists;
 
 class RequestCache implements CacheInterface
 {
-    private $cache = [];
+    private array $cache = [];
 
     /**
      * @inheritDoc

@@ -4,7 +4,7 @@ namespace Plastonick\FPLClient\Entity;
 
 class Stats
 {
-    private $stats;
+    private array $stats;
 
     public function __construct(array $stats)
     {

@@ -8,9 +8,9 @@ use Plastonick\FPLClient\Entity\Team;
 
 class Bootstrap
 {
-    private $players;
-    private $teams;
-    private $fixtures;
+    private array $players;
+    private array $teams;
+    private array $fixtures;
 
     public function __construct(array $static, array $fixtures)
     {

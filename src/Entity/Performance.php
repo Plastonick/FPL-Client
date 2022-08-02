@@ -7,8 +7,8 @@ use DateTimeInterface;
 
 class Performance
 {
-    private $data;
-    private $fixture;
+    private array $data;
+    private Fixture $fixture;
 
     public function __construct(array $data)
     {

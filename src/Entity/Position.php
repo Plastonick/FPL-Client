@@ -4,9 +4,9 @@ namespace Plastonick\FPLClient\Entity;
 
 class Position
 {
-    private $id;
+    private int $id;
 
-    private $name;
+    private string $name;
 
     public function __construct(int $id, string $name)
     {

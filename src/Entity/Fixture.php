@@ -6,13 +6,9 @@ use DateTime;
 
 class Fixture
 {
-    private $awayTeam;
-    private $homeTeam;
-
-    /**
-     * @var array
-     */
-    private $data;
+    private Team $awayTeam;
+    private Team $homeTeam;
+    private array $data;
 
     public function __construct(array $data)
     {

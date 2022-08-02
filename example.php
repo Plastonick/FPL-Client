@@ -5,7 +5,7 @@ use Plastonick\FPLClient\Transport\Client;
 require_once 'vendor/autoload.php';
 
 // initiate the client
-$client = new Client();
+$client = Client::create();
 
 // get a player by ID
 $player = $client->getPlayerById(1);
@@ -20,7 +20,7 @@ $fixtures = $player->getFixtures();
 $performances = $player->getPerformances();
 
 // get various stats for a performance
-$points = $performances[0]->getTotalPoints();
+$points = $performances[0]?->getTotalPoints();
 
 // get the fixture for a performance
-$fixture = $performances[0]->getFixture();
+$fixture = $performances[0]?->getFixture();

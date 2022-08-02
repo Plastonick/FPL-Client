@@ -10,9 +10,8 @@ use Plastonick\FPLClient\Transport\Bootstrap;
 
 class PlayerHydrator
 {
-    private $player;
-
-    private $bootstrap;
+    private Player $player;
+    private Bootstrap $bootstrap;
 
     public function __construct(Player $player, Bootstrap $bootstrap)
     {

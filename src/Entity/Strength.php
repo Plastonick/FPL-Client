@@ -4,7 +4,7 @@ namespace Plastonick\FPLClient\Entity;
 
 class Strength
 {
-    private $data;
+    private array $data;
 
     public function __construct(array $data)
     {

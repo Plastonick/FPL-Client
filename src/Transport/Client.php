@@ -20,24 +20,31 @@ class Client
 {
     const BASE_URI = 'https://fantasy.premierleague.com/api/';
 
-    private $client;
-
-    /** @var CacheInterface */
-    private $cache;
-
-    public function __construct(CacheInterface $cache = null)
+    public static function create(): self
     {
-        $this->client = new GuzzleClient([
+        $client = new GuzzleClient([
             'headers' => ['User-Agent' => 'plastonick-fpl-client'],
             'base_uri' => self::BASE_URI,
         ]);
+        $cache = new RequestCache();
 
-        $this->cache = $cache ?? $this->buildDefaultCache();
+        return new self($client, $cache);
     }
 
-    public function clearCache()
+    private function __construct(private GuzzleClient $client, private CacheInterface $cache)
+    {
+    }
+
+    public function clearCache(): void
     {
         $this->cache->clear();
+    }
+
+    public function setCache(CacheInterface $cache): self
+    {
+        $this->cache = $cache;
+
+        return $this;
     }
 
     /**
@@ -143,7 +150,7 @@ class Client
             'password' => $password,
             'login' => $username,
             'redirect_uri' => 'https://fantasy.premierleague.com/a/login',
-            'app' => 'plfpl-web',
+            'app' => 'plastonick-fpl-client',
         ];
 
         try {
@@ -164,16 +171,11 @@ class Client
         ]);
     }
 
-    /**
-     * @return Bootstrap
-     * @throws TransportException
-     * @throws InvalidArgumentException
-     */
-    private function getBootstrap()
+    private function getBootstrap(): Bootstrap
     {
         $key = 'bootstrap';
 
-        if (!$this->cache->has($key)) {
+        if (!$bootstrap = $this->cache->get($key)) {
             $bootstrap = new Bootstrap(
                 $this->getStatic(),
                 $this->getFixtures()
@@ -182,7 +184,7 @@ class Client
             $this->cache->set($key, $bootstrap);
         }
 
-        return $this->cache->get($key);
+        return $bootstrap;
     }
 
     /**
@@ -233,9 +235,9 @@ class Client
     }
 
     /**
-     * @return Fixture[]
+     * @return array
      * @throws TransportException
-     * @throws Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function fetchFixtures(): array
     {
@@ -251,13 +253,5 @@ class Client
         }
 
         return $fixtures;
-    }
-
-    /**
-     * @return CacheInterface
-     */
-    private function buildDefaultCache(): CacheInterface
-    {
-        return new RequestCache();
     }
 }
