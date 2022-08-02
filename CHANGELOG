@@ -3,6 +3,7 @@ VERSION 1  PHP 7.3 RELEASE
 ==========================
 
    Version 1.1 - update php version, update dependencies, update client creation method
+      02/08/2022 11:43  1.1.1  lower simplecache
       02/08/2022 11:13  1.1.0  initial release
 
    Version 1.0 - php 7.3 release
