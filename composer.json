@@ -11,7 +11,7 @@
     "ext-curl": "*",
     "ext-json": "*",
     "guzzlehttp/guzzle": "^7.4",
-    "psr/simple-cache": "^3.0"
+    "psr/simple-cache": ">=2.0.0"
   },
   "require-dev": {
     "vimeo/psalm": "^4.23",
