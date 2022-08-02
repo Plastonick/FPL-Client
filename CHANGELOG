@@ -2,6 +2,9 @@
 VERSION 1  PHP 7.3 RELEASE
 ==========================
 
+   Version 1.1 - update php version, update dependencies, update client creation method
+      02/08/2022 11:13  1.1.0  initial release
+
    Version 1.0 - php 7.3 release
       29/05/2022 20:38  1.0.1  add licence and update readme
       29/05/2022 20:32  1.0.0  initial release
