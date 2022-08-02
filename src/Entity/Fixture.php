@@ -3,6 +3,7 @@
 namespace Plastonick\FPLClient\Entity;
 
 use DateTime;
+use DateTimeInterface;
 
 class Fixture
 {
@@ -40,7 +41,7 @@ class Fixture
         return $this->data['id'];
     }
 
-    public function getKickoffTime(): int
+    public function getKickoffTime(): DateTimeInterface
     {
         return DateTime::createFromFormat('Y-m-d\TH:i:se', $this->data['kickoff_time']);
     }
@@ -60,12 +61,12 @@ class Fixture
         return $this->data['started'];
     }
 
-    public function getAwayTeamScore(): int
+    public function getAwayTeamScore(): ?int
     {
         return $this->data['team_a_score'];
     }
 
-    public function getHomeTeamScore(): int
+    public function getHomeTeamScore(): ?int
     {
         return $this->data['team_h_score'];
     }

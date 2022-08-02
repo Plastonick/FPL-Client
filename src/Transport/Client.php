@@ -48,7 +48,7 @@ class Client
     }
 
     /**
-     * @return array
+     * @return Player[]
      * @throws TransportException
      * @throws InvalidArgumentException
      */
